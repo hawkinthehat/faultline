@@ -148,67 +148,67 @@ export default function SaccadicScanner({ cipher, onClose }: SaccadicScannerProp
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/92 px-4 py-8 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/35 px-4 py-8 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="saccadic-scanner-title"
     >
-      <div className="flex w-full max-w-md flex-col border-2 border-zinc-600 bg-zinc-950 shadow-[0_0_48px_rgb(24_24_27_/_0.85)]">
-        <div className="flex items-start justify-between gap-3 border-b-2 border-zinc-700 px-4 py-3">
+      <div className="flex w-full max-w-md flex-col border-2 border-zinc-800 bg-white shadow-[0_0_48px_rgb(24_24_27_/_0.12)]">
+        <div className="flex items-start justify-between gap-3 border-b-2 border-zinc-300 px-4 py-3">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-orange-600">
               Heritage cipher
             </p>
-            <h2 id="saccadic-scanner-title" className="mt-1 text-sm font-bold uppercase tracking-tight text-zinc-100">
+            <h2 id="saccadic-scanner-title" className="mt-1 text-sm font-bold uppercase tracking-tight text-zinc-900">
               {cipher.name}
             </h2>
-            <p className="mt-2 text-[11px] leading-snug text-zinc-500">{cipher.fragments[0]}</p>
+            <p className="mt-2 text-[11px] leading-snug text-zinc-600">{cipher.fragments[0]}</p>
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="shrink-0 border border-zinc-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 transition-colors hover:border-zinc-400 hover:text-zinc-100"
+            className="shrink-0 border border-zinc-800 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
           >
             Exit
           </button>
         </div>
 
         <div className="px-4 py-3">
-          <p className="text-[11px] leading-relaxed text-zinc-400">
-            Signals flash on the <span className="text-zinc-200">left and right margins</span> — sweep gaze bilaterally
-            and tap before decay. Load rises during acquisition; confirmed sweeps offset stress.
+          <p className="text-[11px] leading-relaxed text-zinc-700">
+            Signals flash on the <span className="font-semibold text-zinc-900">left and right margins</span> — sweep
+            gaze bilaterally and tap before decay. Load rises during acquisition; confirmed sweeps offset stress.
           </p>
         </div>
 
-        <div className="relative mx-4 mb-4 aspect-[4/3] w-auto overflow-hidden border-2 border-zinc-700 bg-zinc-900/80">
+        <div className="relative mx-4 mb-4 aspect-[4/3] w-auto overflow-hidden border-2 border-zinc-800 bg-slate-50">
           {phase === "intro" && (
             <div className="flex h-full items-center justify-center px-6 text-center">
-              <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Arming visual sweep…</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-orange-600">Arming visual sweep…</p>
             </div>
           )}
 
           {phase === "playing" && (
             <>
-              <div className="pointer-events-none absolute left-3 top-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] uppercase tracking-wider text-zinc-500">
+              <div className="pointer-events-none absolute left-3 top-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] uppercase tracking-wider text-zinc-600">
                 <span>
                   Pulse {roundIndex} / {roundsTotal}
                 </span>
-                <span className="text-zinc-600">Margins · bilateral</span>
+                <span className="text-zinc-500">Margins · bilateral</span>
               </div>
               {/* Vis guide: lateral bands where signals spawn */}
               <div
-                className="pointer-events-none absolute inset-y-6 left-0 w-[18%] border-r border-dashed border-zinc-700/50 bg-zinc-950/20"
+                className="pointer-events-none absolute inset-y-6 left-0 w-[18%] border-r border-dashed border-zinc-300 bg-white/60"
                 aria-hidden
               />
               <div
-                className="pointer-events-none absolute inset-y-6 right-0 w-[18%] border-l border-dashed border-zinc-700/50 bg-zinc-950/20"
+                className="pointer-events-none absolute inset-y-6 right-0 w-[18%] border-l border-dashed border-zinc-300 bg-white/60"
                 aria-hidden
               />
               {target && (
                 <button
                   type="button"
                   onClick={handleHit}
-                  className="absolute h-11 w-11 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-emerald-400/90 bg-emerald-500/25 shadow-[0_0_24px_rgb(52_211_153_/_0.35)] transition-transform hover:scale-105 active:scale-95"
+                  className="absolute h-11 w-11 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-orange-500 bg-orange-100 shadow-[0_0_20px_rgb(234_88_12_/_0.35)] transition-transform hover:scale-105 active:scale-95"
                   style={{ left: `${target.xPct}%`, top: `${target.yPct}%` }}
                   aria-label={`Acquire signal on ${target.side} margin`}
                 />
@@ -218,14 +218,14 @@ export default function SaccadicScanner({ cipher, onClose }: SaccadicScannerProp
 
           {phase === "done" && (
             <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-              <p className="text-xs font-bold uppercase tracking-[0.25em] text-zinc-300">Sweep logged</p>
-              <p className="text-[11px] text-zinc-500">
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-orange-600">Sweep logged</p>
+              <p className="text-[11px] text-zinc-700">
                 Hits {hits} · Misses {misses}
               </p>
               <button
                 type="button"
                 onClick={handleClose}
-                className="mt-2 border-2 border-zinc-100 bg-zinc-950 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-100 hover:bg-zinc-100 hover:text-zinc-950"
+                className="mt-2 border-2 border-orange-500 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-700 hover:bg-orange-50"
               >
                 Return to protocol
               </button>
@@ -233,7 +233,7 @@ export default function SaccadicScanner({ cipher, onClose }: SaccadicScannerProp
           )}
         </div>
 
-        <div className="border-t border-zinc-800 px-4 py-3">
+        <div className="border-t border-zinc-300 px-4 py-3">
           <p className="text-[10px] uppercase tracking-wider text-zinc-600">
             Visibility window ~{Math.round(visibilityMs)}ms · Difficulty {cipher.difficulty}
           </p>
