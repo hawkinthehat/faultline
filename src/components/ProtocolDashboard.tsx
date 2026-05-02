@@ -1,9 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
-import { SACCADIC_SWEEP_CIPHER } from "../data/ciphers";
 import { useZenPulse } from "../hooks/useZenPulse";
 import { useGameStore } from "../store/useGameStore";
-import SaccadicScanner from "./SaccadicScanner";
 
 /** Pulse oscillates ~0.8–1.2; these tune subtle opacity linked to `pulse`. */
 const PULSE_CENTER = 1;
@@ -12,8 +10,6 @@ const TRACK_OPACITY_K = 0.2;
 
 export default function ProtocolDashboard() {
   const { pulse } = useZenPulse();
-  const [survivorScanOpen, setSurvivorScanOpen] = useState(false);
-  const [scanSession, setScanSession] = useState(0);
   const zenLevel = useGameStore((s) => s.zenLevel);
   const cognitiveLoad = useGameStore((s) => s.cognitiveLoad);
   const activeLoadout = useGameStore((s) => s.activeLoadout);
@@ -21,12 +17,7 @@ export default function ProtocolDashboard() {
   const setActiveLoadout = useGameStore((s) => s.setActiveLoadout);
   const clearDiagnosticLogs = useGameStore((s) => s.clearDiagnosticLogs);
   const addLogEntry = useGameStore((s) => s.addLogEntry);
-  const setSkiing = useGameStore((s) => s.setSkiing);
-
-  const handleSurvivorScan = useCallback(() => {
-    setScanSession((n) => n + 1);
-    setSurvivorScanOpen(true);
-  }, []);
+  const setActiveMiniGame = useGameStore((s) => s.setActiveMiniGame);
 
   const handleEmergencyDump = useCallback(() => {
     setZenLevel(0);
@@ -111,23 +102,6 @@ export default function ProtocolDashboard() {
           </div>
         </section>
 
-        <section className="mt-6 border-2 border-zinc-800 bg-white p-4 shadow-sm">
-          <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-900">
-            Tactical field action
-          </h2>
-          <p className="mt-3 text-[11px] leading-relaxed text-zinc-600">
-            Scan for survivors: launches the Saccadic Sweep cipher — bilateral targets, rising load, zen shifts on
-            sweeps vs misses.
-          </p>
-          <button
-            type="button"
-            onClick={handleSurvivorScan}
-            className="mt-4 w-full border-2 border-orange-500 bg-white px-4 py-3 text-center text-xs font-bold uppercase tracking-[0.18em] text-orange-700 transition-colors hover:bg-orange-50 active:bg-orange-100"
-          >
-            Scan for Survivors
-          </button>
-        </section>
-
         <section className="mt-6 flex flex-1 flex-col border-2 border-zinc-800 bg-white p-4 shadow-sm">
           <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-900">
             Active modules
@@ -165,28 +139,28 @@ export default function ProtocolDashboard() {
 
         <section className="mt-6 border-2 border-zinc-800 bg-white p-4 shadow-sm">
           <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-900">
-            Alpine descent
+            Field operations
           </h2>
           <p className="mt-3 text-[11px] leading-relaxed text-zinc-600">
-            High-speed descent with debris avoidance and live cipher fragments — motor and cognition split across the
-            same timeline.
+            Launch alpine descent or a 15s bilateral survivor sweep — both write to mission state and diagnostics.
           </p>
-          <button
-            type="button"
-            onClick={() => setSkiing(true)}
-            className="mt-4 w-full border-2 border-orange-500 bg-white px-4 py-3 text-center text-xs font-bold uppercase tracking-[0.18em] text-orange-800 transition-colors hover:bg-orange-50 active:bg-orange-100"
-          >
-            Initiate Descent
-          </button>
+          <div className="mt-4 flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => setActiveMiniGame("skiing")}
+              className="w-full border-2 border-orange-500 bg-white px-4 py-4 text-center text-xs font-bold uppercase tracking-[0.16em] text-orange-800 transition-colors hover:bg-orange-50 active:bg-orange-100"
+            >
+              Initiate Descent
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMiniGame("saccadic_scan")}
+              className="w-full border-2 border-orange-500 bg-white px-4 py-4 text-center text-xs font-bold uppercase tracking-[0.16em] text-orange-800 transition-colors hover:bg-orange-50 active:bg-orange-100"
+            >
+              Scan for Survivors
+            </button>
+          </div>
         </section>
-
-        {survivorScanOpen && (
-          <SaccadicScanner
-            key={scanSession}
-            cipher={SACCADIC_SWEEP_CIPHER}
-            onClose={() => setSurvivorScanOpen(false)}
-          />
-        )}
 
         <div className="mt-auto pt-8">
           <button

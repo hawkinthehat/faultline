@@ -4,14 +4,14 @@ import { HERITAGE_CIPHERS } from "../data/ciphers";
 import { useGameStore } from "../store/useGameStore";
 
 const ALL_FRAGMENTS = HERITAGE_CIPHERS.flatMap((c) => c.fragments);
-const ACK_KEYS = ["Y", "N", "G", "R", "V", "K"] as const;
 
 type Obstacle = { id: string; x: number; y: number; w: number; h: number; vy: number };
 
 type DualPrompt = {
   id: string;
   fragment: string;
-  ackKey: string;
+  /** Alternating margin placement for dual-tasking */
+  side: "left" | "right";
 };
 
 function rand(min: number, max: number): number {
@@ -27,7 +27,7 @@ function clampLoad(n: number): number {
 }
 
 export default function SkiingDescent() {
-  const setSkiing = useGameStore((s) => s.setSkiing);
+  const setActiveMiniGame = useGameStore((s) => s.setActiveMiniGame);
   const adjustZenLevel = useGameStore((s) => s.adjustZenLevel);
   const setCognitiveLoad = useGameStore((s) => s.setCognitiveLoad);
   const addLogEntry = useGameStore((s) => s.addLogEntry);
@@ -43,6 +43,7 @@ export default function SkiingDescent() {
   const scoreTimeRef = useRef(0);
   const dualPromptRef = useRef<DualPrompt | null>(null);
   const dualFailTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dualMarginIxRef = useRef(0);
 
   const [playerX, setPlayerX] = useState(0.5);
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
@@ -74,11 +75,12 @@ export default function SkiingDescent() {
   const spawnDualPrompt = useCallback(() => {
     if (dualPromptRef.current) return;
     const fragment = pick(ALL_FRAGMENTS);
-    const ackKey = pick(ACK_KEYS);
+    const side: "left" | "right" = dualMarginIxRef.current % 2 === 0 ? "left" : "right";
+    dualMarginIxRef.current += 1;
     const prompt: DualPrompt = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       fragment,
-      ackKey,
+      side,
     };
     dualPromptRef.current = prompt;
     setDualPrompt(prompt);
@@ -99,9 +101,9 @@ export default function SkiingDescent() {
       cancelAnimationFrame(rafRef.current);
       clearDualFailureTimer();
       addLogEntry({ message: `Descent ended: ${reason}`, metaTag: "skiing_descent" });
-      setSkiing(false);
+      setActiveMiniGame("protocol");
     },
-    [addLogEntry, clearDualFailureTimer, setSkiing]
+    [addLogEntry, clearDualFailureTimer, setActiveMiniGame]
   );
 
   const damagePlayer = useCallback(() => {
@@ -118,22 +120,13 @@ export default function SkiingDescent() {
     }
   }, [adjustZenLevel, endDescent, setCognitiveLoad]);
 
-  /** Steering + dual-task letter keys */
+  /** Steering only — cipher fragments are cleared by tapping the margin panel */
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       const raw = e.key;
       const k = raw.length === 1 ? raw.toLowerCase() : raw.toLowerCase();
       keysDown.current.add(k);
-
-      const prompt = dualPromptRef.current;
-      if (prompt) {
-        if (k === prompt.ackKey.toLowerCase()) {
-          e.preventDefault();
-          resolveDualSuccess();
-        }
-        return;
-      }
 
       if (["arrowleft", "arrowright", "a", "d"].includes(k)) {
         e.preventDefault();
@@ -152,7 +145,7 @@ export default function SkiingDescent() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [resolveDualSuccess]);
+  }, []);
 
   /** Spawn cipher fragments on an interval (only when none active) */
   useEffect(() => {
@@ -262,7 +255,7 @@ export default function SkiingDescent() {
   }, [damagePlayer]);
 
   return (
-    <div className="flex min-h-dvh flex-col bg-zinc-50 font-mono text-zinc-900">
+    <div className="flex min-h-dvh flex-col bg-slate-50 font-mono text-zinc-900">
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b-2 border-zinc-800 bg-white px-4 py-3 shadow-sm">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-orange-600">Faultline</p>
@@ -276,7 +269,7 @@ export default function SkiingDescent() {
           onClick={() => {
             clearDualFailureTimer();
             addLogEntry({ message: "Descent aborted by operator.", metaTag: "skiing_abort" });
-            setSkiing(false);
+            setActiveMiniGame("protocol");
           }}
           className="border-2 border-orange-500 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-orange-700 hover:bg-orange-50"
         >
@@ -291,7 +284,7 @@ export default function SkiingDescent() {
 
         <div
           ref={wrapRef}
-          className="relative mx-auto w-full max-w-lg flex-1 overflow-hidden rounded-lg border-2 border-zinc-800 bg-gradient-to-b from-sky-100 via-zinc-100 to-zinc-200 shadow-inner touch-none select-none"
+          className="relative mx-auto w-full max-w-lg flex-1 overflow-hidden rounded-lg border-2 border-zinc-800 bg-gradient-to-b from-slate-100 via-zinc-50 to-zinc-200 shadow-inner touch-none select-none"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           role="application"
@@ -337,21 +330,22 @@ export default function SkiingDescent() {
           />
 
           {dualPrompt && (
-            <div className="absolute right-2 top-8 z-20 w-[min(42%,180px)] border-2 border-orange-500 bg-white p-3 shadow-lg sm:right-4 sm:top-12 sm:w-44">
-              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600">Cipher fragment</p>
+            <div
+              className={`absolute top-8 z-20 w-[min(42%,180px)] border-2 border-orange-500 bg-slate-50 p-3 shadow-lg sm:top-12 sm:w-44 ${
+                dualPrompt.side === "left" ? "left-2 sm:left-4" : "right-2 sm:right-4"
+              }`}
+            >
+              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600">Cipher · margin</p>
               <p className="mt-2 break-words text-[10px] font-bold leading-tight text-zinc-900">{dualPrompt.fragment}</p>
               <p className="mt-3 text-[10px] text-zinc-700">
-                Tap <span className="font-bold text-orange-600">VERIFY</span> or press{" "}
-                <kbd className="rounded border border-zinc-400 bg-zinc-100 px-1 font-mono text-orange-700">
-                  {dualPrompt.ackKey}
-                </kbd>
+                Tap <span className="font-bold text-orange-600">ACKNOWLEDGE</span> to vent cognitive load.
               </p>
               <button
                 type="button"
-                className="mt-3 w-full border-2 border-orange-500 bg-orange-50 py-2 text-[10px] font-bold uppercase tracking-wider text-orange-800 active:bg-orange-100"
+                className="mt-3 w-full border-2 border-orange-500 bg-white py-2 text-[10px] font-bold uppercase tracking-wider text-orange-800 hover:bg-orange-50 active:bg-orange-100"
                 onClick={() => resolveDualSuccess()}
               >
-                Verify
+                Acknowledge
               </button>
             </div>
           )}

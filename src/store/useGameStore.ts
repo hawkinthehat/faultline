@@ -17,13 +17,18 @@ function clamp0to100(n: number): number {
   return Math.min(100, Math.max(0, n));
 }
 
+/** Which full-screen experience is active (protocol home vs mini-games). */
+export type ActiveMiniGame = "protocol" | "skiing" | "saccadic_scan";
+
 export interface GameStoreState extends MissionState {
+  activeMiniGame: ActiveMiniGame;
   diagnosticLogs: DiagnosticLogEntry[];
 
   setZenLevel: (value: number) => void;
   adjustZenLevel: (amount: number) => void;
   setCognitiveLoad: (value: number) => void;
   setSkiing: (value: boolean) => void;
+  setActiveMiniGame: (game: ActiveMiniGame) => void;
   setActiveLoadout: (modules: StabilityModule[]) => void;
   addLogEntry: (
     entry: Omit<DiagnosticLogEntry, "id" | "at"> & Partial<Pick<DiagnosticLogEntry, "id" | "at">>
@@ -35,6 +40,7 @@ export const useGameStore = create<GameStoreState>((set) => ({
   zenLevel: 100,
   cognitiveLoad: 0,
   isSkiing: false,
+  activeMiniGame: "protocol",
   activeLoadout: [],
   diagnosticLogs: [],
 
@@ -52,7 +58,17 @@ export const useGameStore = create<GameStoreState>((set) => ({
 
   setCognitiveLoad: (value) => set({ cognitiveLoad: clamp0to100(value) }),
 
-  setSkiing: (value) => set({ isSkiing: value }),
+  setSkiing: (value) =>
+    set({
+      isSkiing: value,
+      activeMiniGame: value ? "skiing" : "protocol",
+    }),
+
+  setActiveMiniGame: (game) =>
+    set({
+      activeMiniGame: game,
+      isSkiing: game === "skiing",
+    }),
 
   setActiveLoadout: (modules) => set({ activeLoadout: modules }),
 
