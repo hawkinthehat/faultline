@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "schemaVersion": "1.0.0",
+    "title": "Faultline — Stability Loadout (sample)",
+    "lastUpdated": "2026-04-28"
+  },
+  "modules": [
+    {
+      "id": "mod-anchor-01",
+      "slug": "grounding-strut",
+      "displayName": "Grounding Strut",
+      "description": "Reduces spike damage to the stability meter during stress events.",
+      "category": "anchor",
+      "tier": 1,
+      "zenCost": 2,
+      "flavorText": "Plant your feet. Let the fault pass through.",
+      "modifiers": [
+        { "key": "stability.max", "value": 5, "unit": "flat" },
+        { "key": "spike.mitigation", "value": 8, "unit": "percent" }
+      ],
+      "unlockedByDefault": true
+    },
+    {
+      "id": "mod-vent-01",
+      "slug": "pressure-relief",
+      "displayName": "Pressure Relief",
+      "description": "Converts a portion of overflow stress into recoverable Zen over time.",
+      "category": "vent",
+      "tier": 2,
+      "zenCost": 4,
+      "modifiers": [
+        { "key": "stress.overflowToZen", "value": 12, "unit": "percent" }
+      ],
+      "conflictsWith": ["mod-buffer-01"]
+    },
+    {
+      "id": "mod-buffer-01",
+      "slug": "inertial-damper",
+      "displayName": "Inertial Damper",
+      "description": "Smooths rapid stability changes; stronger when Zen is high.",
+      "category": "buffer",
+      "tier": 2,
+      "zenCost": 3,
+      "modifiers": [
+        { "key": "stability.smoothing", "value": 0.15, "unit": "multiplier" }
+      ],
+      "conflictsWith": ["mod-vent-01"]
+    }
+  ]
+}

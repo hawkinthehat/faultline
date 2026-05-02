@@ -1,0 +1,18 @@
+[
+    {
+      "id": "TIPP_01",
+      "name": "Thermal Reset",
+      "tacticalEffect": "Panic_Reduction",
+      "cooldown": 45,
+      "somaticInput": "swipe_down",
+      "metaTag": "somatic_regulation"
+    },
+    {
+      "id": "FACT_01",
+      "name": "Logic Probe",
+      "tacticalEffect": "Truth_Verification",
+      "cooldown": 30,
+      "somaticInput": "tap_hold",
+      "metaTag": "cognitive_restructuring"
+    }
+  ]
